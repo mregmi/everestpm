@@ -96,3 +96,63 @@ int Ext2Read::scan_ebr(FileHandle handle, lloff_t base, int sectsize, int disk)
     }
     return logical;
 }
+
+/* Scans The partitions */
+int scan_partitions(char *path, int diskno)
+{
+    unsigned char sector[SECTOR_SIZE];
+    struct MBRpartition *part;
+    Ext2Partition *partition;
+    FileHandle handle;
+    int sector_size;
+    int ret, i;
+
+    handle = open_disk(path, &sector_size);
+    if(handle < 0)
+        return -1;
+
+    ret = read_disk(handle,sector, 0, 1, sector_size);
+    if(ret < 0)
+        return ret;
+
+    if(ret < sector_size)
+    {
+        LOG("Error Reading the MBR on %s \n", path);
+        return -1;
+    }
+   // part = pt_offset(sector, 0);
+    if(!valid_part_table_flag(sector))
+    {
+        LOG("Partition Table Error on %s\n", path);
+        LOG("Invalid End of sector marker");
+        return -INVALID_TABLE;
+    }
+
+    /* First Scan primary Partitions */
+    for(i = 0; i < 4; i++)
+    {
+        part = pt_offset(sector, i);
+        if((part->sys_ind != 0x00) || (get_nr_sects(part) != 0x00))
+        {
+            LOG("index %d ID %X size %Ld \n", i, part->sys_ind, get_nr_sects(part));
+
+            else if((part->sys_ind == 0x05) || (part->sys_ind == 0x0f))
+            {
+                scan_ebr(handle, get_start_sect(part), sector_size, diskno);
+            }
+        }
+    }
+
+    return 0;
+}
+
+int add_loopback(const char *file)
+{
+    int ret, sector_size;
+
+    ndisks++;
+    ret = scan_partitions((char *)file, ndisks);
+
+    return 0;
+}
+
