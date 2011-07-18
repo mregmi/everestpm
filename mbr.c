@@ -55,11 +55,10 @@ scan_system()
 }
 
 /* Reads The Extended Partitions */
-int Ext2Read::scan_ebr(FileHandle handle, lloff_t base, int sectsize, int disk)
+int scan_ebr(FileHandle handle, lloff_t base, int sectsize, int disk)
 {
     unsigned char sector[SECTOR_SIZE];
     struct MBRpartition *part, *part1;
-    Ext2Partition *partition;
     int logical = 4, ret;
     lloff_t  ebrBase, nextPart, ebr2=0;
 
@@ -79,13 +78,13 @@ int Ext2Read::scan_ebr(FileHandle handle, lloff_t base, int sectsize, int disk)
         part = pt_offset(sector, 0);
         LOG("index %d ID %X size %Ld \n", logical, part->sys_ind, get_nr_sects(part));
 
-        /*if((part->sys_ind == 0x05) || (part->sys_ind == 0x0f))
+        if((part->sys_ind == 0x05) || (part->sys_ind == 0x0f))
         {
             // special case. ebr has extended partition with offset to another ebr.
             ebr2 += get_start_sect(part);
             nextPart = (ebr2 + ebrBase);
             continue;
-        }*/
+        }
         part1 = pt_offset(sector, 1);
         ebr2 = get_start_sect(part1);
         nextPart = (ebr2 + ebrBase);

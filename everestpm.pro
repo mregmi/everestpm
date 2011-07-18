@@ -14,10 +14,13 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     platform_unix.c \
     platform_win32.c \
-    mbr.c
+    mbr.c \
+    log.c \
+    everestpm.c
 
 HEADERS  += mainwindow.h \
     parttypes.h \
-    mbr.h
+    mbr.h \
+    everestpm.h
 
 FORMS    += mainwindow.ui
