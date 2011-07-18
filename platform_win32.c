@@ -1,5 +1,9 @@
 /**
- * Copyright (C) 2010 by Manish Regmi   (regmi dot manish at gmail.com)
+ * Everest Partition Manager
+ * File: platform_win32.c
+ **/
+/**
+ * Copyright (C) 2005, 2010 by Manish Regmi   (regmi dot manish at gmail.com)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

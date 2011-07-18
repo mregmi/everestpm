@@ -1,6 +1,6 @@
 /**
- * Ext2read
- * File: ext2read.cpp
+ * Everest Partition Manager
+ * File: mbr.c
  **/
 /**
  * Copyright (C) 2005, 2010 by Manish Regmi   (regmi dot manish at gmail.com)
