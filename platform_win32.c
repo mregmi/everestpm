@@ -34,9 +34,7 @@
 FileHandle open_disk(const char *path, int *sect_size)
 {
     HANDLE handle;
-    DISK_GEOMETRY dsk;
-    BOOL bResult;
-    DWORD junk;
+
 
     handle = CreateFileA(path, GENERIC_READ,
                          FILE_SHARE_READ,
@@ -50,23 +48,11 @@ FileHandle open_disk(const char *path, int *sect_size)
         return handle;
     }
 
-    bResult = DeviceIoControl(handle,  // device we are querying
-                              IOCTL_DISK_GET_DRIVE_GEOMETRY,  // operation to perform
-                              NULL, 0, // no input buffer, so pass zero
-                              &dsk, sizeof(dsk),  // output buffer
-                              &junk, // discard count of bytes returned
-                              (LPOVERLAPPED) NULL);  // synchronous I/O
-
-    if((!bResult) || (dsk.BytesPerSector < SECTOR_SIZE))
-        *sect_size = SECTOR_SIZE;
-    else
-        *sect_size = dsk.BytesPerSector;
-
 
     return handle;
 }
 
-int get_ndisks(struct system_info *sys)
+int get_ndisks()
 {
     HANDLE hDevice;               // handle to the drive to be examined
     int ndisks = 0;
@@ -142,10 +128,48 @@ int write_disk(FileHandle hnd, void *ptr, lloff_t sector, int nsects, int sector
 
     len = nsects * sectorsize;
     ret = ReadFile(hnd, ptr, len, &rd, NULL);
-    if(!ret)
+    if (!ret)
         return -1;
 
     return rd;
+}
+
+void
+get_diskinfo(struct disk_info *dsk, int i)
+{
+    HANDLE hDevice;               // handle to the drive to be examined
+    DISK_GEOMETRY_EX geom;
+    BOOL bResult;
+    DWORD junk;
+    char path[] = {"\\\\.\\PhysicalDrive0"};
+
+    path[strlen(path) - 1] = '0' + i;
+    hDevice = CreateFileA(path,     // drive to open
+                GENERIC_READ,
+                FILE_SHARE_READ,    // share mode
+                NULL,               // default security attributes
+                OPEN_EXISTING,      // disposition
+                0,                  // file attributes
+                NULL);              // don't copy any file's attributes
+
+    if (hDevice == INVALID_HANDLE_VALUE) {
+        LOG_INFO("Error Opening %s. Error Code %X\n", path, GetLastError());
+        return;
+    }
+    strcpy(dsk->device_file, path);
+    bResult = DeviceIoControl(handle,  // device we are querying
+                              IOCTL_DISK_GET_DRIVE_GEOMETRY_EX,  // operation to perform
+                              NULL, 0, // no input buffer, so pass zero
+                              &geom, sizeof(geom),  // output buffer
+                              &junk, // discard count of bytes returned
+                              (LPOVERLAPPED) NULL);  // synchronous I/O
+
+    if((!bResult) || (geom.Geometry.BytesPerSector < SECTOR_SIZE))
+        dsk->sector_size = SECTOR_SIZE;
+    else
+        dsk->sector_size = geom.Geometry.BytesPerSector;
+    dsk->size = geom.DiskSize;
+
 }
 
 #endif

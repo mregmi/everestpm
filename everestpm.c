@@ -28,15 +28,17 @@ struct system_info system;
 
 void scan_system()
 {
+    struct disk_info *dsk;
     static char pathname[256];
     int ret;
 
-    ret = get_ndisks(&system);
-    LOG_INFO("No of disks %d\n", ndisks);
-
+    system.ndisks = get_ndisks();
+    LOG_INFO("No of disks %d\n", system.ndisks);
+    system.disk = malloc(sizeof(struct disk_info) * system.ndisks);
     for(int i = 0; i < ndisks; i++)
     {
-        get_nthdevice(pathname, ndisks);
+        dsk = &system.disk[i];
+        get_diskinfo(dsk, i);
         LOG_INFO("Scanning %s\n", pathname);
         ret = scan_partitions(pathname, i);
         if(ret < 0)

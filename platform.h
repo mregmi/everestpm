@@ -72,7 +72,7 @@ int get_ndisks();
 void close_disk();
 int read_disk(FileHandle hnd, void *ptr, lloff_t sector, int nsects, int sectorsize);
 int write_disk(FileHandle hnd, void *ptr, lloff_t sector, int nsects, int sectorsize);
-int get_nthdevice(char *path, int ndisks);
+void get_diskinfo(struct disk_info *dsk, int i);
 
 #ifdef __cplusplus
 }
