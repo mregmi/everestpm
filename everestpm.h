@@ -20,3 +20,34 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  **/
+
+#include "platform.h"
+#include "mbr.h"
+
+/* Error Codes */
+#define INVALID_TABLE   1
+
+#define MAX_DEVICE_NAME_LEN 256 /* this will suffice */
+
+struct partition_info {
+
+};
+
+struct disk_info {
+    uint32_t type;  /* Partition Table Type */
+    uint32_t flag;  /* Flag */
+    char device_file[MAX_DEVICE_NAME_LEN];
+    union {
+        struct MBRpartition MBR; /* Cached boot record */
+    };
+    struct partition_info *partition;
+};
+
+struct system_info {
+    int ndisks;
+    struct disk_info *disk;
+};
+
+#define LOG_INFO    epm_log
+
+int epm_log(const char *msg, ...);

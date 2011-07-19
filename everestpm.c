@@ -20,3 +20,29 @@
  * Free Software Foundation, Inc.,
  * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  **/
+
+#include "everestpm.h"
+#include "mbr.h"
+
+struct system_info system;
+
+void scan_system()
+{
+    static char pathname[256];
+    int ret;
+
+    ret = get_ndisks(&system);
+    LOG_INFO("No of disks %d\n", ndisks);
+
+    for(int i = 0; i < ndisks; i++)
+    {
+        get_nthdevice(pathname, ndisks);
+        LOG_INFO("Scanning %s\n", pathname);
+        ret = scan_partitions(pathname, i);
+        if(ret < 0)
+        {
+            LOG_INFO("Scanning of %s failed: ", pathname);
+            continue;
+        }
+    }
+}

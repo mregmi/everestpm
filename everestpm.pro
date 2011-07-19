@@ -21,6 +21,7 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     parttypes.h \
     mbr.h \
-    everestpm.h
+    everestpm.h \
+    platform.h
 
 FORMS    += mainwindow.ui

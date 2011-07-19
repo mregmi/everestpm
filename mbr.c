@@ -27,32 +27,12 @@
 
 #include <dirent.h>
 
+#include "everestpm.h"
 #include "platform.h"
 #include "mbr.h"
 #include "parttypes.h"
 
 
-
-scan_system()
-{
-    char pathname[20];
-    int ret;
-
-    ndisks = get_ndisks();
-    LOG_INFO("No of disks %d\n", ndisks);
-
-    for(int i = 0; i < ndisks; i++)
-    {
-        get_nthdevice(pathname, ndisks);
-        LOG_INFO("Scanning %s\n", pathname);
-        ret = scan_partitions(pathname, i);
-        if(ret < 0)
-        {
-            LOG_INFO("Scanning of %s failed: ", pathname);
-            continue;
-        }
-    }
-}
 
 /* Reads The Extended Partitions */
 int scan_ebr(FileHandle handle, lloff_t base, int sectsize, int disk)
@@ -72,11 +52,11 @@ int scan_ebr(FileHandle handle, lloff_t base, int sectsize, int disk)
 
         if(ret < sectsize)
         {
-            LOG("Error Reading the EBR \n");
+            LOG_INFO("Error Reading the EBR \n");
             return -1;
         }
         part = pt_offset(sector, 0);
-        LOG("index %d ID %X size %Ld \n", logical, part->sys_ind, get_nr_sects(part));
+        LOG_INFO("index %d ID %X size %Ld \n", logical, part->sys_ind, get_nr_sects(part));
 
         if((part->sys_ind == 0x05) || (part->sys_ind == 0x0f))
         {
@@ -101,7 +81,6 @@ int scan_partitions(char *path, int diskno)
 {
     unsigned char sector[SECTOR_SIZE];
     struct MBRpartition *part;
-    Ext2Partition *partition;
     FileHandle handle;
     int sector_size;
     int ret, i;
@@ -116,14 +95,14 @@ int scan_partitions(char *path, int diskno)
 
     if(ret < sector_size)
     {
-        LOG("Error Reading the MBR on %s \n", path);
+        LOG_INFO("Error Reading the MBR on %s \n", path);
         return -1;
     }
    // part = pt_offset(sector, 0);
     if(!valid_part_table_flag(sector))
     {
-        LOG("Partition Table Error on %s\n", path);
-        LOG("Invalid End of sector marker");
+        LOG_INFO("Partition Table Error on %s\n", path);
+        LOG_INFO("Invalid End of sector marker");
         return -INVALID_TABLE;
     }
 
@@ -133,9 +112,9 @@ int scan_partitions(char *path, int diskno)
         part = pt_offset(sector, i);
         if((part->sys_ind != 0x00) || (get_nr_sects(part) != 0x00))
         {
-            LOG("index %d ID %X size %Ld \n", i, part->sys_ind, get_nr_sects(part));
+            LOG_INFO("index %d ID %X size %Ld \n", i, part->sys_ind, get_nr_sects(part));
 
-            else if((part->sys_ind == 0x05) || (part->sys_ind == 0x0f))
+            if((part->sys_ind == 0x05) || (part->sys_ind == 0x0f))
             {
                 scan_ebr(handle, get_start_sect(part), sector_size, diskno);
             }
@@ -147,7 +126,7 @@ int scan_partitions(char *path, int diskno)
 
 int add_loopback(const char *file)
 {
-    int ret, sector_size;
+    int ret;
 
     ndisks++;
     ret = scan_partitions((char *)file, ndisks);

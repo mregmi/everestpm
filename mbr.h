@@ -39,7 +39,6 @@
 #define __PARTITION_H
 
 #include "platform.h"
-#include "ext2read.h"
 
 struct MBRpartition {
 	unsigned char boot_ind;         /* 0x80 - active */

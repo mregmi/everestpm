@@ -26,11 +26,11 @@
 #include <winioctl.h>
 #include <fcntl.h>
 
+#include "everestpm.h"
 #include "platform.h"
 
 #define DEVICE	"\\\\.\\PhysicalDrive0"
 
-int ext2explore_log(const char *str, ...);
 FileHandle open_disk(const char *path, int *sect_size)
 {
     HANDLE handle;
@@ -46,7 +46,7 @@ FileHandle open_disk(const char *path, int *sect_size)
 
     if(handle == INVALID_HANDLE_VALUE)
     {
-        ext2explore_log("Error Opening %s. Error Code %X\n", path, GetLastError());
+        LOG_INFO("Error Opening %s. Error Code %X\n", path, GetLastError());
         return handle;
     }
 
@@ -66,14 +66,14 @@ FileHandle open_disk(const char *path, int *sect_size)
     return handle;
 }
 
-int get_ndisks()
+int get_ndisks(struct system_info *sys)
 {
     HANDLE hDevice;               // handle to the drive to be examined
     int ndisks = 0;
+    int index = 0;
     char path[] = {"\\\\.\\PhysicalDrive0"};
 
     do {
-        //TRACE("NDISKS %s", path);
         hDevice = CreateFileA(path, // drive to open
                               GENERIC_READ,
                               FILE_SHARE_READ,  // share mode
@@ -84,7 +84,7 @@ int get_ndisks()
 
         if(hDevice == INVALID_HANDLE_VALUE)
         {
-            ext2explore_log("Error Opening %s. Error Code %X\n", path, GetLastError());
+            LOG_INFO("Error Opening %s. Error Code %X\n", path, GetLastError());
             break;
         }
 
@@ -146,26 +146,6 @@ int write_disk(FileHandle hnd, void *ptr, lloff_t sector, int nsects, int sector
         return -1;
 
     return rd;
-}
-
-int get_nthdevice(char *path, int ndisks)
-{
-    static int dev = 0;
-
-    if(!path)
-        return -1;
-
-    strcpy(path, DEVICE);
-    path[17] = dev + '0';
-    dev++;
-
-    if(dev >= ndisks)
-    {
-        dev = 0;
-        return -1;
-    }
-
-    return 0;
 }
 
 #endif
