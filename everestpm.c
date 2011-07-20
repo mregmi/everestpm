@@ -39,11 +39,11 @@ void scan_system()
     {
         dsk = &system.disk[i];
         get_diskinfo(dsk, i);
-        LOG_INFO("Scanning %s\n", pathname);
-        ret = scan_partitions(pathname, i);
+        LOG_INFO("Scanning %s\n", dsk->device_file);
+        ret = scan_partitions(dsk);
         if(ret < 0)
         {
-            LOG_INFO("Scanning of %s failed: ", pathname);
+            LOG_INFO("Scanning of %s failed: ", dsk->device_file);
             continue;
         }
     }

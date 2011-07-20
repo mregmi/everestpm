@@ -29,8 +29,19 @@
 
 #define MAX_DEVICE_NAME_LEN 256 /* this will suffice */
 #define DEVICE_INFO_LEN     128 /* should be enough */
-struct partition_info {
 
+#define PARTITION_TYPE_PRIMARY  1
+#define PARTITION_TYPE_EXTENDED 2
+#define PARTITION_TYPE_LOGICAL  3
+
+struct partition_info {
+    struct partition_info *next;
+    struct partition_info *ext; /* points to list of extended partitions */
+
+    uint8_t flag;       /* flags */
+    uint8_t fstype;     /* Filesystem Type */
+    lloff_t base;       /* Start of partition in Sectors */
+    lloff_t size;       /* Size of Partition (bytes) */
 };
 
 struct disk_info {

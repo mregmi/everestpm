@@ -31,27 +31,6 @@
 
 #define DEVICE	"\\\\.\\PhysicalDrive0"
 
-FileHandle open_disk(const char *path, int *sect_size)
-{
-    HANDLE handle;
-
-
-    handle = CreateFileA(path, GENERIC_READ,
-                         FILE_SHARE_READ,
-                         NULL,
-                         OPEN_EXISTING,
-                         0, 0 );
-
-    if(handle == INVALID_HANDLE_VALUE)
-    {
-        LOG_INFO("Error Opening %s. Error Code %X\n", path, GetLastError());
-        return handle;
-    }
-
-
-    return handle;
-}
-
 int get_ndisks()
 {
     HANDLE hDevice;               // handle to the drive to be examined
@@ -139,6 +118,7 @@ get_diskinfo(struct disk_info *dsk, int i)
 {
     HANDLE hDevice;               // handle to the drive to be examined
     DISK_GEOMETRY_EX geom;
+    STORAGE_DEVICE_DESCRIPTOR *desc;
     BOOL bResult;
     DWORD junk;
     char path[] = {"\\\\.\\PhysicalDrive0"};
@@ -169,7 +149,6 @@ get_diskinfo(struct disk_info *dsk, int i)
     else
         dsk->sector_size = geom.Geometry.BytesPerSector;
     dsk->size = geom.DiskSize;
-
 }
 
 #endif

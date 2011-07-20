@@ -56,6 +56,7 @@ struct MBRpartition {
 #define SECTOR_SIZE	512
 
 #define pt_offset(b, n)	((struct MBRpartition *)((b) + 0x1be + (n) * sizeof(struct MBRpartition)))
+#define is_extended(type) (((type) == 0x05) || ((type) == 0x0f))
 
 /* A valid partition table sector ends in 0x55 0xaa */
 static INLINE unsigned int 
