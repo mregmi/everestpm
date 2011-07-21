@@ -21,30 +21,93 @@
  * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  **/
 
-#ifdef __unix__
+#ifdef __APPLE__ || __unix__
+
 #include "platform.h"
 
-FileHandle open_disk(const char *path, struct disk *dsk)
+#ifdef __APPLE__
+#define DEVICE "/dev/rdisk0"
+#elif __linux__
+#define DEVICE "/dev/sda"
+#endif
+
+void
+get_diskinfo(struct disk_info *dsk, int i)
 {
+    char path = DEVICE;
+
+    path[strlen(path) - 1] = '0' + i;
+    dsk->fd = open(path, O_RDONLY);
+    if (dsk->fd < 0) {
+        LOG_INFO("Error Opening %s. Error Code %X\n", path, strerr());
+        break;
+    }
+    strcpy(dsk->device_file, path);
+    dsk->sector_size = SECTOR_SIZE
 }
 
 int get_ndisks()
 {
+    int fd, ndisks = 0;
+    char dev_file = DEVICE;
+    do {
+        fd = open(path, O_RDONLY);
+        if (fd < 0) {
+            LOG_INFO("Error Opening %s. Error Code %X\n", path, strerr());
+            break;
+        }
 
+        close(fd);
+        ndisks++;
+        path[strlen(path) - 1] = (char)('0' + ndisks);
+    } while (fd > 0);
+
+    return ndisks;
 }
 
-void close_disk(FileHandle handle)
+void
+close_disk(FileHandle fd)
 {
-
+    close(fd);
 }
 
-int read_disk(FileHandle handle, void *ptr, lloff_t sector, int nsects, int sectorsize)
+int
+read_disk(FileHandle handle, void *ptr, lloff_t sector, int nsects,
+              int sectorsize)
 {
+    lloff_t offset;
+    ssize_t rd;
+    size_t len;
+
+    offset = sector * sectorsize;
+    lseek64(handle, offset, SEEK_SET);
+
+    len = nsects * sectorsize;
+    rd = read(handle, ptr, len);
+    if(rd != len)
+        return -1;
+
+    return rd;
 }
 
 
-int write_disk(FileHandle handle, void *ptr, lloff_t sector, int nsects, int sectorsize)
+int
+write_disk(FileHandle handle, void *ptr, lloff_t sector, int nsects,
+               int sectorsize)
 {
+    lloff_t offset;
+    ssize_t rd;
+    size_t len;
+
+    offset = sector * sectorsize;
+    lseek64(handle, offset, SEEK_SET);
+
+    len = nsects * sectorsize;
+    rd = read(handle, ptr, len);
+    if(rd != len)
+        return -1;
+
+    return rd;
 }
 
 #endif

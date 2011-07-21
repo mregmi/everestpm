@@ -66,14 +66,6 @@ typedef unsigned long ulong;
 extern "C"{
 #endif
 
-
-FileHandle open_disk(const char *, int *);
-int get_ndisks();
-void close_disk();
-int read_disk(FileHandle hnd, void *ptr, lloff_t sector, int nsects, int sectorsize);
-int write_disk(FileHandle hnd, void *ptr, lloff_t sector, int nsects, int sectorsize);
-void get_diskinfo(struct disk_info *dsk, int i);
-
 #ifdef __cplusplus
 }
 #endif

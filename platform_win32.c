@@ -35,7 +35,6 @@ int get_ndisks()
 {
     HANDLE hDevice;               // handle to the drive to be examined
     int ndisks = 0;
-    int index = 0;
     char path[] = {"\\\\.\\PhysicalDrive0"};
 
     do {
